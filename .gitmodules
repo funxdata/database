@@ -1,0 +1,15 @@
+[submodule "crates/sqlite"]
+	path = crates/sqlite
+	url = https://github.com/sqlite/sqlite.git
+[submodule "crates/unqlite"]
+	path = crates/unqlite
+	url = https://github.com/symisc/unqlite.git
+[submodule "crates/googletest"]
+	path = crates/googletest
+	url = https://github.com/google/googletest.git
+[submodule "crates/klib"]
+	path = crates/klib
+	url = https://github.com/attractivechaos/klib
+[submodule "crates/dirent"]
+	path = crates/dirent
+	url = https://github.com/tronkko/dirent.git

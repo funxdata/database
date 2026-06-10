@@ -34,7 +34,7 @@ jobs:
       - name: Prepare upload directory
         run: |
           mkdir -p upload
-          cp target/release/lib${{ setps.version.outputs.project }}.so upload/
+          cp target/release/libdatabase.so upload/
 
       - name: Upload to UpYun S3
         uses: shallwefootball/s3-upload-action@master

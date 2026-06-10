@@ -32,7 +32,7 @@ jobs:
       - name: Prepare upload directory
         run: |
           mkdir -p upload
-          cp target/release/lib${{ setps.version.outputs.project }}.dylib upload/
+          cp target/release/libdatabase.dylib upload/
 
       - name: Upload to UpYun S3
         uses: shallwefootball/s3-upload-action@master

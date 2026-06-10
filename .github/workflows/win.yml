@@ -32,7 +32,7 @@ jobs:
       - name: Prepare upload directory
         run: |
           mkdir upload
-          copy target\release\${{ setps.version.outputs.project }}.dll upload\
+          copy target\release\database.dll upload\
 
       - name: Upload to UpYun S3
         uses: shallwefootball/s3-upload-action@master

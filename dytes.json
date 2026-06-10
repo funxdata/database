@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "system for database management",
   "keywords": ["database", "management"],
-  "author": "John Doe",",
-  "type": "core"
+  "author": "funxdata",
+  "type": "system"
 }

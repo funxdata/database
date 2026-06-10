@@ -25,6 +25,7 @@ jobs:
         run: |
           echo "project=$(jq -r '.name' dytes.json)" >> $GITHUB_OUTPUT
           echo "version=$(jq -r '.version' dytes.json)" >> $GITHUB_OUTPUT
+ 
 
       - name: Build Release
         run: |
@@ -33,7 +34,7 @@ jobs:
       - name: Prepare upload directory
         run: |
           mkdir -p upload
-          cp target/release/libostfil.so upload/
+          cp target/release/lib${{ setps.version.outputs.project }}.so upload/
 
       - name: Upload to UpYun S3
         uses: shallwefootball/s3-upload-action@master

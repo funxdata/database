@@ -19,7 +19,7 @@ struct DbReq {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn db_create(
+pub extern "C" fn post_db_create(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
@@ -89,7 +89,7 @@ pub extern "C" fn db_create(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn db_insert(
+pub extern "C" fn post_db_insert(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
@@ -97,7 +97,7 @@ pub extern "C" fn db_insert(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn db_update(
+pub extern "C" fn post_db_update(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
@@ -105,7 +105,7 @@ pub extern "C" fn db_update(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn db_delete(
+pub extern "C" fn post_db_delete(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
@@ -160,7 +160,7 @@ pub extern "C" fn db_delete(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn db_query(
+pub extern "C" fn post_db_query(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {

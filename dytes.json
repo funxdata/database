@@ -4,5 +4,8 @@
   "description": "system for database management",
   "keywords": ["database", "management"],
   "author": "funxdata",
-  "type": "system"
+  "type": "sys",
+  "exports": {
+      "./target/release/database.dll":"database.dll"
+  }
 }

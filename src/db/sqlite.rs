@@ -1,4 +1,5 @@
 use rusqlite::Connection;
+use rusqlite::types::ValueRef;
 use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
@@ -87,21 +88,39 @@ impl FunxDB {
 
         let col_count = stmt.column_count();
 
+        // 预先获取列名，若获取不到则使用 "col{i}" 作为后备
+        let column_names: Vec<String> = (0..col_count)
+            .map(|i| {
+                stmt.column_name(i)
+                    .map(|s| s.to_string())
+                    .unwrap_or_else(|_| format!("col{}", i))  // 添加忽略参数修复编译错误
+            })
+            .collect();
+
         let rows = stmt
             .query_map([], |row| {
-                let mut obj =
-                    serde_json::Map::new();
+                let mut obj = serde_json::Map::new();
 
                 for i in 0..col_count {
-                    let value: Result<String, _> =
-                        row.get(i);
+                    // 根据列类型转换为合适的 JSON 值
+                    let json_val = match row.get_ref(i) {
+                        Ok(rv) => match rv {
+                            ValueRef::Null => Value::Null,
+                            ValueRef::Integer(v) => json!(v),
+                            ValueRef::Real(v) => json!(v),
+                            ValueRef::Text(v) => {
+                                // 将字节转换为 UTF-8 字符串
+                                json!(String::from_utf8_lossy(v).to_string())
+                            }
+                            ValueRef::Blob(v) => {
+                                // 将 blob 转为 JSON 数组
+                                json!(v.to_vec())
+                            }
+                        },
+                        Err(_) => Value::Null, // 获取失败时返回 null
+                    };
 
-                    obj.insert(
-                        format!("col{}", i),
-                        json!(
-                            value.unwrap_or_default()
-                        ),
-                    );
+                    obj.insert(column_names[i].clone(), json_val);
                 }
 
                 Ok(Value::Object(obj))
@@ -119,4 +138,3 @@ impl FunxDB {
         Ok(json!(result))
     }
 }
-

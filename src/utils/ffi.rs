@@ -5,6 +5,7 @@ use crate::utils::cjson::{
     write_success,
 };
 
+use safer_ffi::prelude::*;
 use serde::Deserialize;
 use serde_json::json;
 use std::ffi::c_char;
@@ -18,8 +19,9 @@ struct DbReq {
     sql: Option<String>,
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn post_db_create(
+// 使用 safer_ffi 导出函数
+#[ffi_export]
+fn post_db_create(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
@@ -88,24 +90,24 @@ pub extern "C" fn post_db_create(
     }
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn post_db_insert(
+#[ffi_export]
+fn post_db_insert(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
     execute_write(json_in, json_out)
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn post_db_update(
+#[ffi_export]
+fn post_db_update(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
     execute_write(json_in, json_out)
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn post_db_delete(
+#[ffi_export]
+fn post_db_delete(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {
@@ -159,8 +161,8 @@ pub extern "C" fn post_db_delete(
     }
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn post_db_query(
+#[ffi_export]
+fn post_db_query(
     json_in: *const c_char,
     json_out: *mut c_char,
 ) -> c_int {

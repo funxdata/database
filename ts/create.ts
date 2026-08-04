@@ -12,3 +12,4 @@ const res = await fetch("http://127.0.0.1:44944/libdatabase", {
 });
 
 console.log(await res.json());
+

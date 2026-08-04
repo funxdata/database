@@ -1,7 +1,7 @@
-const res = await fetch("http://127.0.0.1:44944/libdatabase", {
+const res = await fetch("http://127.0.0.1:44944/database", {
   method: "POST",
   headers: {
-    "Content-Type": "application/database",
+    "Content-Type": "application/libary",
     "FFI-Symbol": "db_insert",
   },
   body: JSON.stringify({

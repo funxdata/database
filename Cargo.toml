@@ -20,4 +20,5 @@ serde_json = "1.0"
 uuid = { version = "1.23.2", features = ["v4"] }
 rusqlite = { version = "0.37", features = ["bundled"] }
 safer-ffi = "0.1.13"
-
+sqlite-vec = "0.1"
+zerocopy = "0.8"

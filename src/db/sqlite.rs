@@ -1,17 +1,33 @@
+use once_cell::sync::Lazy;
+use rusqlite::ffi::sqlite3_auto_extension;
 use rusqlite::Connection;
 use rusqlite::types::ValueRef;
 use serde_json::{json, Value};
+use sqlite_vec::sqlite3_vec_init;
 use std::fs;
 use std::path::Path;
 
 const DATABASE_DIR: &str = "./database";
 
+/// 全局注册 sqlite-vec 扩展，进程内只执行一次。
+/// 注册后，后续所有 Connection 都会自动加载 vec0 功能。
+static INIT_VEC: Lazy<()> = Lazy::new(|| {
+    unsafe {
+        sqlite3_auto_extension(Some(std::mem::transmute(
+            sqlite3_vec_init as *const (),
+        )));
+    }
+});
+
 pub struct FunxDB {
-    conn: Connection,
+    pub(crate) conn: Connection,
 }
 
 impl FunxDB {
     pub fn open(name: &str) -> Result<Self, String> {
+        // 必须在 Connection::open 之前注册
+        Lazy::force(&INIT_VEC);
+
         fs::create_dir_all(DATABASE_DIR)
             .map_err(|e| e.to_string())?;
 
@@ -22,6 +38,14 @@ impl FunxDB {
         let conn =
             Connection::open(db_path)
                 .map_err(|e| e.to_string())?;
+
+        // WAL：写不阻塞读，显著提升逐条写入吞吐
+        conn.pragma_update(None, "journal_mode", "WAL")
+            .map_err(|e| e.to_string())?;
+
+        // NORMAL：fsync 只在 checkpoint 时发生，而非每次写入
+        conn.pragma_update(None, "synchronous", "NORMAL")
+            .map_err(|e| e.to_string())?;
 
         Ok(Self { conn })
     }
@@ -93,7 +117,7 @@ impl FunxDB {
             .map(|i| {
                 stmt.column_name(i)
                     .map(|s| s.to_string())
-                    .unwrap_or_else(|_| format!("col{}", i))  // 添加忽略参数修复编译错误
+                    .unwrap_or_else(|_| format!("col{}", i))
             })
             .collect();
 
@@ -109,15 +133,13 @@ impl FunxDB {
                             ValueRef::Integer(v) => json!(v),
                             ValueRef::Real(v) => json!(v),
                             ValueRef::Text(v) => {
-                                // 将字节转换为 UTF-8 字符串
                                 json!(String::from_utf8_lossy(v).to_string())
                             }
                             ValueRef::Blob(v) => {
-                                // 将 blob 转为 JSON 数组
                                 json!(v.to_vec())
                             }
                         },
-                        Err(_) => Value::Null, // 获取失败时返回 null
+                        Err(_) => Value::Null,
                     };
 
                     obj.insert(column_names[i].clone(), json_val);

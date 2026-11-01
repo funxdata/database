@@ -13,3 +13,6 @@ out/
 cyctron
 database
 publish*
+
+# vendor 的 C 源码（Rust 构建不引用，不入库）
+crates/

@@ -1,7 +1,7 @@
 {
   "name": "database",
   "uuid": "e754edcb-7046-4ce9-bc85-92e27b82a8ce",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "system for database management",
   "keywords": [
     "database",
@@ -9,7 +9,15 @@
   ],
   "author": "funxdata",
   "type": "sys",
-  "exports": {
-    "./target/release/database.dll": "database.dll"
+  "platform-exports": {
+    "windows": {
+      "./target/release/database.dll": "database.dll"
+    },
+    "linux": {
+      "./target/release/libdatabase.so": "database.so"
+    },
+    "macos": {
+      "./target/release/libdatabase.dylib": "database.dylib"
+    }
   }
 }

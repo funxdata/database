@@ -6,7 +6,7 @@
  *   cd ts && deno task smoke
  */
 
-import { call, callOk, close, LIB_PATH } from "./client.ts";
+import { call, callOk, LIB_PATH } from "./client.ts";
 
 const PATH = `smoke_${Date.now()}`;
 const TABLE = "smoke_users";
@@ -133,8 +133,6 @@ console.log(
     results.length - failed.length
   } passed, ${failed.length} failed`,
 );
-
-close();
 
 for (const suffix of ["", "-wal", "-shm"]) {
   try {

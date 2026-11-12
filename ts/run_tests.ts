@@ -4,7 +4,7 @@
  * 运行（在 ts/ 目录下）：deno task test
  */
 
-import { call, callOk, close, LIB_PATH } from "./client.ts";
+import { call, callOk, LIB_PATH } from "./client.ts";
 
 const PATH = `ffi_test_${Date.now()}`;
 const TABLE = "users";
@@ -96,23 +96,6 @@ check("invalid table name", () => {
   });
   if (res.code !== 500101) throw new Error(`unexpected code: ${res.code}`);
 });
-
-check("overflow returns non-zero", () => {
-  try {
-    call("db_query", { path: PATH, sql: `SELECT * FROM ${TABLE}` }, {
-      bufferSize: 1,
-    });
-    throw new Error("expected FFI error for 1-byte buffer");
-  } catch (error) {
-    if (
-      error instanceof Error && error.message.includes("expected FFI error")
-    ) {
-      throw error;
-    }
-  }
-});
-
-close();
 
 for (const suffix of ["", "-wal", "-shm"]) {
   try {

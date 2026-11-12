@@ -28,5 +28,5 @@
 - 数据库模式：WAL + `synchronous=NORMAL`。
 - 输出缓冲区：固定上限 **1 MiB**（`MAX_JSON_OUT = 1048576`）。
 - 测试：`cargo test`（Rust）与 `cd ts && deno task test`（Deno FFI）；规范见 `skills/database-testing/SKILL.md`、`skills/database-ffi-contract/SKILL.md`、`skills/database-performance/SKILL.md`。
-- 版本：`1.0.5`（`Cargo.toml` 与 `dytes.json` 一致）。
+- 版本：`1.0.6`（`Cargo.toml` 与 `dytes.json` 一致）。
 - 构建：`cargo build --release`；README 已更新为实际构建方式。

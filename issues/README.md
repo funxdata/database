@@ -12,15 +12,15 @@
 - 002 原始 SQL 注入边界 → SQL 仅由调用方 lib 内部发起；表名/路径已校验。
 - 003 每次调用新建连接 → 改为每线程连接缓存。
 - 004 缺少 `busy_timeout` → 设置 5 秒超时。
-- 005 版本号不一致 → 统一版本号（当前 `1.0.5`）。
+- 005 版本号不一致 → 统一版本号（当前 `1.0.6`）。
 - 007 README 构建说明错误 → README 重写。
-- 008 CI 未运行测试 → 新增 `test.yml`。
+- 008 CI 未运行测试 → 已建立本地测试（独立 CI 测试工作流后续按发布流程移除）。
 - 010 错误码散落 → 集中到 `src/utils/errors.rs`。
-- 011 CI 工作流重复 → 删除旧 UpYun 工作流，统一 dytes 发布并复用 `test.yml`；移除 cmake/ninja。
+- 011 CI 工作流重复 → 删除旧 UpYun 工作流，统一 dytes 发布；移除 cmake/ninja。
 - 012 `path` 未校验 → 逻辑库名白名单校验。
 - 013 输入校验与 schema 管理 → 增加鲁棒性测试（保留字表名、多语句、Unicode/长文本、重复列名、非法 schema、并发写）；schema 迁移按当前业务暂不引入。
-- 014 未使用依赖与导出符号 hack → 删除未使用依赖与 `_force_export`，CI 校验导出表。
-- 015 格式化与 lint 门禁 → 代码已统一格式化，CI 已接入 cargo fmt/clippy 与 deno fmt/lint。
+- 014 未使用依赖与导出符号 hack → 删除未使用依赖与 `_force_export`，本地/手动校验导出表。
+- 015 格式化与 lint 门禁 → 代码已统一格式化；本地通过 cargo fmt/clippy 与 deno fmt/lint，独立 CI 测试工作流已移除。
 
 ## 约定
 

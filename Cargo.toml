@@ -1,6 +1,6 @@
 [package]
 name = "database"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2021"
 
 # 核心：动态库 + C ABI，同时保留 rlib 供测试引用

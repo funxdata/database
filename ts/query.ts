@@ -1,13 +1,11 @@
-const res:any = await fetch("http://127.0.0.1:44944/database", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/libary",
-    "FFI-Symbol": "db_query",
-  },
-  body: JSON.stringify({
-    path: "router",
-    sql: "SELECT * FROM routers",
-  }),
+import { call, close } from "./client.ts";
+
+const PATH = "ffi_users";
+
+const res = call("db_query", {
+  path: PATH,
+  sql: "SELECT * FROM users ORDER BY id",
 });
 
-console.log(await res.json());
+console.log(JSON.stringify(res, null, 2));
+close();

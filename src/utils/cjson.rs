@@ -1,9 +1,16 @@
-use serde_json::{json, Value};
 use serde::de::DeserializeOwned;
-use std::ffi::{CStr, c_char};
+use serde_json::{json, Value};
+use std::ffi::{c_char, CStr};
 use std::os::raw::c_int;
 
+use crate::utils::errors::SUCCESS;
+
+/// 输出缓冲区上限：1 MiB。
+/// 调用方分配的 json_out 必须至少为 MAX_JSON_OUT 字节（含末尾 NUL）。
+pub const MAX_JSON_OUT: usize = 1024 * 1024;
+
 /// 写 JSON 到 C buffer
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn write_json_out(json_out: *mut c_char, value: Value) -> c_int {
     let out_str = value.to_string();
     let bytes = out_str.as_bytes();
@@ -13,7 +20,7 @@ pub fn write_json_out(json_out: *mut c_char, value: Value) -> c_int {
             return -1;
         }
 
-        if bytes.len() >= 65536 {
+        if bytes.len() >= MAX_JSON_OUT {
             return -2;
         }
 
@@ -42,7 +49,7 @@ pub fn write_success(json_out: *mut c_char, msg: &str, data: Value) -> c_int {
     write_json_out(
         json_out,
         json!({
-            "code": 200,
+            "code": SUCCESS,
             "data": data,
             "msg": msg
         }),
@@ -50,9 +57,8 @@ pub fn write_success(json_out: *mut c_char, msg: &str, data: Value) -> c_int {
 }
 
 /// 解析 JSON
-pub fn parse_json<T>(
-    json_in: *const c_char,
-) -> Result<T, String>
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn parse_json<T>(json_in: *const c_char) -> Result<T, String>
 where
     T: DeserializeOwned,
 {
@@ -66,7 +72,5 @@ where
             .map_err(|e| e.to_string())?
     };
 
-    serde_json::from_str(body)
-        .map_err(|e| e.to_string())
+    serde_json::from_str(body).map_err(|e| e.to_string())
 }
-

@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       platforms: ${{ steps.meta.outputs.platforms }}
-      build: ${{ steps.meta.outputs.build }}
       version: ${{ steps.meta.outputs.version }}
     steps:
       - uses: actions/checkout@v4
@@ -28,21 +27,25 @@ jobs:
             echo "tag ${GITHUB_REF_NAME} 与 dytes.json 版本 ${version} 不一致" >&2
             exit 1
           fi
-          platforms=$(node -e "const d=require('./dytes.json');const p=Object.keys(d['platform-exports']||{});process.stdout.write(JSON.stringify(p.length?p:['windows']))")
-          if [ -f CMakeLists.txt ]; then
-            build=cmake
-          elif [ -f Cargo.toml ]; then
-            build=cargo
-          else
-            build=deno
+          cargo_version=$(node -e "const fs=require('fs');const m=fs.readFileSync('Cargo.toml','utf8').match(/^version\\s*=\\s*\"([^\"]+)\"/m);process.stdout.write(m?m[1]:'')")
+          if [ "${cargo_version}" != "${version}" ]; then
+            echo "Cargo.toml 版本 ${cargo_version} 与 dytes.json 版本 ${version} 不一致" >&2
+            exit 1
           fi
+          platforms=$(node -e "const d=require('./dytes.json');const p=Object.keys(d['platform-exports']||{});process.stdout.write(JSON.stringify(p.length?p:['windows']))")
           echo "platforms=${platforms}" >> "$GITHUB_OUTPUT"
-          echo "build=${build}" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Test
+    needs: prepare
+    uses: ./.github/workflows/test.yml
 
   publish:
     name: Publish ${{ matrix.platform }}
-    needs: prepare
+    needs:
+      - prepare
+      - test
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -51,55 +54,14 @@ jobs:
     runs-on: ${{ matrix.platform == 'windows' && 'windows-latest' || matrix.platform == 'macos' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Setup Rust
-        if: needs.prepare.outputs.build == 'cargo'
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install Cargo build dependencies (Unix)
-        if: needs.prepare.outputs.build == 'cargo' && matrix.platform != 'windows'
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "${{ matrix.platform }}" = "linux" ]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake ninja-build pkg-config clang libclang-dev
-          else
-            brew install cmake ninja pkg-config
-          fi
-
-      - name: Install CMake dependencies (Windows)
-        if: needs.prepare.outputs.build == 'cmake' && matrix.platform == 'windows'
-        shell: pwsh
-        run: choco install -y cmake ninja
-
-      - name: Install CMake dependencies (Unix)
-        if: needs.prepare.outputs.build == 'cmake' && matrix.platform != 'windows'
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "${{ matrix.platform }}" = "linux" ]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake ninja-build pkg-config
-          else
-            brew install cmake ninja pkg-config
-          fi
-
-      - name: Build (cargo)
-        if: needs.prepare.outputs.build == 'cargo'
-        shell: bash
+      - name: Build
         run: cargo build --release
 
-      - name: Build (cmake)
-        if: needs.prepare.outputs.build == 'cmake'
-        shell: bash
-        run: |
-          cmake -S . -B build -G Ninja -DBUILD_TESTS=OFF
-          cmake --build build --config Release
-
       - name: Publish with dytes
-        uses: dytescn/dytes@v0.1.22
+        uses: dytescn/dytes@v0.1.23
         with:
           command: publish

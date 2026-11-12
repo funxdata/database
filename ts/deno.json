@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "test": "deno run --allow-ffi --allow-env --allow-read --allow-write run_tests.ts",
+    "smoke": "deno run --allow-ffi --allow-env --allow-read --allow-write smoke_test.ts",
+    "stress": "deno run --allow-ffi --allow-env --allow-read --allow-write sqlite_stress.ts",
+    "check": "deno check client.ts run_tests.ts smoke_test.ts sqlite_stress.ts",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "lint": "deno lint"
+  },
+  "fmt": {
+    "include": ["*.ts"]
+  }
+}
